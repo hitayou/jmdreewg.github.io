@@ -180,23 +180,55 @@
     </div>
 
     <script>
+        // Флаг для отслеживания состояния
+        let isEntered = false;
+
         function enterProfile() {
-            // Плавное исчезновение карточки
+            if (isEntered) return;
+            isEntered = true;
+
             const card = document.querySelector('.profile-card');
-            card.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-            card.style.opacity = '0';
-            card.style.transform = 'scale(0.9) translateY(20px)';
+            const video = document.getElementById('bg-video');
             
+            // Плавное исчезновение карточки
+            card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.85) translateY(30px)';
+            
+            // Включаем полный экран для видео
             setTimeout(() => {
-                // Здесь можно добавить переход на другую страницу
-                // Например: window.location.href = 'bio.html';
-                console.log('Profile entered');
-            }, 500);
+                card.style.display = 'none';
+                
+                // Запрашиваем полный экран для всего документа
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen().catch(err => {
+                        console.log('Fullscreen не поддерживается или заблокирован:', err);
+                    });
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+                
+                // Убеждаемся, что видео играет
+                video.play().catch(err => {
+                    console.log('Ошибка воспроизведения видео:', err);
+                });
+            }, 600);
         }
 
         // Обработка ошибок загрузки видео
-        document.getElementById('bg-video').addEventListener('error', function() {
-            console.log('Видео не загружено. Добавьте файл videos/background.mp4');
+        const bgVideo = document.getElementById('bg-video');
+        bgVideo.addEventListener('error', function(e) {
+            console.error('Ошибка загрузки видео:', e);
+            console.log('Проверьте, что файл videos/background.mp4 существует');
+        });
+
+        // Попытка автовоспроизведения при загрузке страницы
+        window.addEventListener('load', function() {
+            bgVideo.play().catch(err => {
+                console.log('Автовоспроизведение заблокировано браузером, ждём взаимодействия');
+            });
         });
     </script>
 </body>
